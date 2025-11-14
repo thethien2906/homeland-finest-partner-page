@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <title>Stagger Effect - Sóng lan tỏa từ trung tâm / Anime.js</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      --rows: 41;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    .stagger-visualizer {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      width: calc(var(--rows) * 1rem);
+      height: calc(var(--rows) * 1rem);
+    }
+
+    .stagger-visualizer .dot {
+      position: relative;
+      width: .25rem;
+      height: .25rem;
+      margin: .375rem;
+      background-color: #ff0000;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="stagger-visualizer"></div>
+  <script type="module" src="./index.js"></script>
+</body>
+</html>
+

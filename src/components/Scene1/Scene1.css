@@ -1,0 +1,33 @@
+/* Scene 1: Intro Reveal */
+.scene1-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  /* Loại bỏ flexbox để tránh conflict với absolute positioning của children */
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  overflow: hidden;
+}
+
+/* Z-index layering: SVG circles → Dots → 3D Map */
+/* Note: CircleAnimation có wrapper riêng với transform, không cần apply ở đây */
+
+/* Đảm bảo wrapper không bị ảnh hưởng bởi rule dưới */
+.scene1-container > .circle-animation-wrapper {
+  position: fixed !important;
+  /* Transform và position sẽ được set bằng JavaScript */
+}
+
+/* Chỉ apply cho các children khác, không phải wrapper */
+.scene1-container > .dots-stagger-container,
+.scene1-container > .map3d-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Responsive - Add mobile styles here if needed */
+
