@@ -181,7 +181,8 @@ function CircleAnimation() {
     }}
     
     // Outer Circle: Draw animation
-    const dashAppearDuration = 2500 / 6
+    // Reduced from 2500ms to 1500ms total for faster completion
+    const dashAppearDuration = 1500 / 6
     const innerDrawCompleteTime = innerTotalTime
     const outerStartDelay = innerDrawCompleteTime + 200
     

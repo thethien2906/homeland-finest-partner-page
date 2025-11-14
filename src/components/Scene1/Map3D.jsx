@@ -19,6 +19,10 @@ function VietnamMap() {
     }
   }, [])
 
+  if (!scene) {
+    return <group />
+  }
+
   return (
     <primitive
       ref={mapRef}

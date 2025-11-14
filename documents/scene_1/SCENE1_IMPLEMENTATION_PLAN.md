@@ -73,38 +73,51 @@ src/
 #### 2.1. Tạo component CircleAnimation.jsx
 
 **Yêu cầu kỹ thuật:**
-- Sử dụng SVG với `<circle>` elements
-- Stroke-dasharray và stroke-dashoffset cho hiệu ứng vẽ
-- Transform rotate cho animation quay
+- Sử dụng SVG với `<g>` groups chứa `<line>` và `<path>` elements
+- Stroke-dasharray và stroke-dashoffset cho hiệu ứng vẽ (dùng Anime.js)
+- Transform rotate cho animation quay (dùng manual animation với requestAnimationFrame)
 
 **Tham số từ Hyperparameter.md:**
 - Inner Circle:
-  - Draw Duration: 2s
+  - Draw Duration: 2s (stagger animation)
   - Rotation Speed: 30s (full rotation)
   - Direction: Clockwise
 - Outer Circle:
   - Draw Delay: 0.5s  
-  - Draw Duration: 2.5s
+  - Draw Duration: 2.5s (stagger animation)
   - Rotation Speed: 45s (full rotation, slower)
 
 **Implementation:**
 ```jsx
 // CircleAnimation.jsx structure
-- useRef cho SVG elements
-- useEffect với Anime.js để:
-  1. Animate stroke-dashoffset (draw effect)
-  2. Animate rotation (continuous)
-- SVG với 2 circles (inner và outer)
+- useRef cho SVG elements và groups
+- useEffect với:
+  1. Anime.js cho stroke-dashoffset (draw effect)
+  2. Manual animation với requestAnimationFrame cho rotation
+     - Sử dụng SVG transform attribute: rotate(angle, centerX, centerY)
+     - Center point: (200, 200) - center của viewBox "0 0 400 400"
+     - Sử dụng performance.now() cho độ chính xác cao
+- SVG viewBox: "0 0 400 400"
+- Inner circle: 60 vertical bars (lines)
+- Outer circle: 6 dash strokes (paths)
 ```
 
+**Technical Notes:**
+- **Rotation Implementation**: Sử dụng SVG transform attribute thay vì CSS transform để tránh drift issue
+- **Transform Origin**: Fixed center point (200, 200) trong SVG coordinate system
+- **Animation Loop**: Sử dụng modulo để loop rotation từ 0° đến 360°
+- **Performance**: Sử dụng `performance.now()` thay vì `Date.now()` cho độ chính xác cao hơn
+- **CSS**: Không sử dụng CSS transform properties để tránh conflict với SVG transform
+
 **Checklist:**
-- [ ] Tạo SVG container với viewBox phù hợp
-- [ ] Vòng tròn trong: nét đứt mảnh, dựng đứng
-- [ ] Vòng tròn ngoài: 5 nét đứt dài, đường cung
-- [ ] Anime.js animation cho stroke-dashoffset (draw)
-- [ ] Anime.js animation cho rotation (continuous)
-- [ ] Đảm bảo timing đúng (inner trước, outer sau 0.5s)
-- [ ] Test trên các kích thước màn hình khác nhau
+- [x] Tạo SVG container với viewBox "0 0 400 400"
+- [x] Vòng tròn trong: 60 vertical bars (lines) tạo động
+- [x] Vòng tròn ngoài: 6 dash strokes (paths) tạo động
+- [x] Anime.js animation cho stroke-dashoffset (draw effect)
+- [x] Manual animation với requestAnimationFrame cho rotation
+- [x] Sử dụng SVG transform attribute để tránh drift
+- [x] Đảm bảo timing đúng (inner trước, outer sau delay)
+- [x] Test trên các kích thước màn hình khác nhau
 
 ---
 
@@ -113,19 +126,23 @@ src/
 #### 3.1. Tạo component DotsStagger.jsx
 
 **Yêu cầu kỹ thuật:**
-- 20 dots được tạo động
-- Stagger animation: scale từ 0 → 2, opacity từ 1 → 0
-- Dots được đặt ở tâm (center)
+- Grid layout với nhiều dots (13×13 grid, dynamic số lượng)
+- Dots được sắp xếp trong grid và nằm trong inner circle
+- Animation 3 giai đoạn: Co lại → Giãn nở → Trở về và fade out
+- Fade in sau khi inner circle hoàn thành
+- Animation bắt đầu sau khi outer circle hoàn thành
 - **Tham khảo từ:** `documents/scene_1/stagger-effect/`
 
-**Tham số từ Hyperparameter.md:**
-- Total Dots: 20
-- Stagger Delay: 0.1s (giữa mỗi dot)
-- Scale Start: 0
-- Scale End: 2
-- Scale Duration: 1.5s
-- Opacity Fade Duration: 1s
-- Total Effect Duration: 3s
+**Tham số thực tế (đã implement):**
+- Grid Size: 13×13 (169 vị trí, chỉ lấy dots trong inner circle)
+- Dot Size: 2px
+- Gap: 25px
+- Fade In: Bắt đầu sau 1100ms (inner circle complete), duration 500ms
+- Animation 3 giai đoạn: Bắt đầu sau 2900ms (outer circle complete)
+- Phase 1: 400ms (co lại về tâm)
+- Phase 2: 300ms (giãn nở mạnh)
+- Phase 3: 500ms (trở về và fade out)
+- Stagger Delay: 50ms per Manhattan distance unit
 
 **Implementation Pattern (từ ví dụ):**
 ```jsx
@@ -183,15 +200,19 @@ function DotsStagger() {
 - Hoặc đơn giản: 20 dots xếp thành vòng tròn quanh tâm
 
 **Checklist:**
-- [ ] Tạo 20 dots elements (div hoặc SVG circle)
-- [ ] Position dots ở trung tâm màn hình (xếp thành vòng tròn hoặc grid)
-- [ ] Tính toán center index (tham khảo pattern từ ví dụ)
-- [ ] Anime.js stagger animation với `from: 'center'`
-- [ ] Scale animation từ 0 → 2 → 0 (3 keyframes như ví dụ)
-- [ ] Opacity fade từ 1 → 0
-- [ ] Timing đúng (stagger 0.1s = 100ms)
-- [ ] Easing: `easeInOutQuad` (như ví dụ)
-- [ ] Dots biến mất sau khi animation hoàn thành
+- [x] Tạo grid layout với dots (13×13 grid, dynamic số lượng)
+- [x] Position dots ở trung tâm màn hình (grid layout trong inner circle)
+- [x] Tính toán Manhattan distance từ center để phân lớp
+- [x] Fade in animation sau khi inner circle hoàn thành
+- [x] Visibility control (hidden → visible khi fade in)
+- [x] Animation 3 giai đoạn với translateX/Y và scale
+- [x] Phase 1: Co lại về tâm (translate về center, scale: 1 → 0.5)
+- [x] Phase 2: Giãn nở mạnh (translate ra ngoài, scale: 0.5 → 2.5)
+- [x] Phase 3: Trở về và fade out (translate về 0, scale: 2.5 → 0, opacity: 1 → 0)
+- [x] Stagger delay dựa trên Manhattan distance (50ms per unit)
+- [x] Timing đúng (đợi outer circle hoàn thành trước khi bắt đầu animation)
+- [x] Easing: `easeInQuad`, `easeOutQuad`, `easeInOutQuad` cho từng phase
+- [x] Dots fade out sau khi animation hoàn thành
 
 ---
 
@@ -597,18 +618,24 @@ useEffect(() => {
 ### Tham Số Animation (Từ Hyperparameter.md)
 
 **Vòng Tròn:**
-- Inner Circle Draw: 2s
-- Inner Circle Rotate: 30s (continuous)
-- Outer Circle Draw Delay: 0.5s
-- Outer Circle Draw: 2.5s
-- Outer Circle Rotate: 45s (continuous)
+- Inner Circle Draw: 300ms duration + 15ms × 59 bars = ~1185ms (Anime.js stagger animation)
+- Inner Circle Rotate: 30s (continuous, manual animation với requestAnimationFrame)
+- Outer Circle Draw Delay: 200ms (sau inner circle hoàn thành)
+- Outer Circle Draw: 1500ms total (250ms × 6 dashes) - reduced from 2500ms
+- Outer Circle Rotate: 45s (continuous, manual animation với requestAnimationFrame)
+- **Note**: Rotation sử dụng SVG transform attribute `rotate(angle, 200, 200)` để tránh drift issue
 
 **Dots:**
-- Total: 20 dots
-- Stagger: 0.1s
-- Scale: 0 → 2 (1.5s)
-- Opacity: 1 → 0 (1s)
-- Total Duration: 3s
+- Grid: 13×13 grid, dynamic số lượng dots (tất cả dots trong inner circle)
+- Dot Size: 2px
+- Gap: 25px
+- Fade In: Bắt đầu sau 1100ms, duration 500ms
+- Animation 3 Giai Đoạn: Bắt đầu sau 2900ms (outer circle complete)
+  - Phase 1: 400ms (co lại về tâm, scale: 1 → 0.5)
+  - Phase 2: 300ms (giãn nở mạnh, scale: 0.5 → 2.5)
+  - Phase 3: 500ms (trở về và fade out, scale: 2.5 → 0, opacity: 1 → 0)
+- Stagger Delay: 50ms per Manhattan distance unit
+- Total Animation Duration: 1200ms per dot (có stagger)
 
 **Map 3D:**
 - Fade In Delay: 1.5s
@@ -627,21 +654,26 @@ useEffect(() => {
 ## ✅ Checklist Tổng Hợp
 
 ### Setup
-- [ ] Tạo cấu trúc thư mục components/Scene1
-- [ ] Tạo các file component cơ bản
-- [ ] Setup layout và styling cơ bản
+- [x] Tạo cấu trúc thư mục components/Scene1
+- [x] Tạo các file component cơ bản
+- [x] Setup layout và styling cơ bản
 
 ### Vòng Tròn SVG
-- [ ] Tạo CircleAnimation component
-- [ ] Implement inner circle với draw + rotate
-- [ ] Implement outer circle với draw + rotate
-- [ ] Timing và sequencing đúng
+- [x] Tạo CircleAnimation component
+- [x] Implement inner circle với draw (Anime.js) + rotate (manual animation)
+- [x] Implement outer circle với draw (Anime.js) + rotate (manual animation)
+- [x] Fix drift issue bằng cách sử dụng SVG transform attribute
+- [x] Sử dụng performance.now() cho độ chính xác animation
+- [x] Timing và sequencing đúng (outer circle nhanh hơn: 1500ms thay vì 2500ms)
 
 ### Dots Staggering
-- [ ] Tạo DotsStagger component
-- [ ] Tạo 20 dots
-- [ ] Implement stagger animation
-- [ ] Scale và opacity animation
+- [x] Tạo DotsStagger component
+- [x] Tạo grid layout với dynamic số lượng dots (13×13 grid)
+- [x] Implement fade in animation sau inner circle
+- [x] Implement animation 3 giai đoạn (co lại → giãn nở → trở về và fade out)
+- [x] Scale và translate animation với stagger delay
+- [x] Visibility control để tránh flash
+- [x] Timing đồng bộ với CircleAnimation
 
 ### Bản Đồ 3D
 - [ ] Tạo Map3D component
@@ -658,10 +690,10 @@ useEffect(() => {
 - [ ] Stagger giữa các vòng tròn
 
 ### Tích Hợp
-- [ ] Tích hợp tất cả vào Scene1.jsx
-- [ ] Layout và z-index đúng
-- [ ] Tích hợp vào App.jsx
-- [ ] Test auto-play
+- [x] Tích hợp tất cả vào Scene1.jsx
+- [x] Layout và z-index đúng
+- [x] Tích hợp vào App.jsx
+- [x] Test auto-play
 
 ### Testing & Tối Ưu
 - [ ] Test trên nhiều trình duyệt
@@ -738,6 +770,48 @@ useEffect(() => {
 ---
 
 **Ngày tạo:** $(date)
-**Phiên bản:** 2.0 (Đã cập nhật với tham khảo từ ví dụ)
-**Trạng thái:** Sẵn sàng để bắt đầu implementation với code patterns từ ví dụ
+**Phiên bản:** 3.0 (Đã cập nhật với implementation thực tế)
+**Trạng thái:** Step 1, 2, 3 đã hoàn thành. Step 4 đang trong quá trình.
+
+---
+
+## 📝 Ghi Chú Implementation Thực Tế
+
+### Thay Đổi So Với Kế Hoạch Ban Đầu:
+
+#### Dots Staggering (Step 3):
+- **Thay đổi từ**: 20 dots cố định, animation đơn giản (scale + opacity)
+- **Thành**: Grid 13×13 với dynamic số lượng dots, animation 3 giai đoạn phức tạp
+- **Lý do**: Tạo hiệu ứng sóng xung kích từ tâm ra ngoài, phù hợp với yêu cầu thiết kế
+
+#### Timing Adjustments:
+- **Outer Circle**: Giảm từ 2500ms xuống 1500ms để hoàn thành nhanh hơn
+- **Dots Fade In**: Thêm fade in animation sau inner circle hoàn thành
+- **Animation Start**: Đợi outer circle hoàn thành (2900ms) thay vì bắt đầu ngay
+
+#### Grid Layout:
+- **Grid Size**: Tăng từ 5×4 lên 13×13 để có nhiều dots hơn
+- **Dot Size**: Giảm từ 4px xuống 2px để fit nhiều dots trong inner circle
+- **Gap**: Điều chỉnh từ 50px xuống 25px để grid dày hơn
+
+#### Animation Pattern:
+- **Thay đổi từ**: Stagger đơn giản với scale và opacity
+- **Thành**: Animation 3 giai đoạn với translateX/Y, scale, và opacity
+- **Pattern**: Co lại → Giãn nở → Trở về và fade out (tạo hiệu ứng sóng xung kích)
+
+### Files Đã Tạo/Chỉnh Sửa:
+- ✅ `src/components/Scene1/CircleAnimation.jsx` - Hoàn thành
+- ✅ `src/components/Scene1/CircleAnimation.css` - Hoàn thành
+- ✅ `src/components/Scene1/DotsStagger.jsx` - Hoàn thành với animation 3 giai đoạn
+- ✅ `src/components/Scene1/DotsStagger.css` - Hoàn thành
+- ✅ `src/components/Scene1/Scene1.jsx` - Hoàn thành
+- ✅ `src/components/Scene1/Scene1.css` - Hoàn thành
+- ⏳ `src/components/Scene1/Map3D.jsx` - Đang implement (structure đã có, cần animation)
+- ⏳ `src/components/Scene1/Map3D.css` - Đã có
+
+### Next Steps:
+1. Hoàn thành Map3D fade in và scale animation
+2. Implement Ripple Effect trong Map3D
+3. Testing và fine-tuning timing
+4. Responsive design adjustments (nếu cần)
 

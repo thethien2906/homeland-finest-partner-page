@@ -54,12 +54,21 @@
 ### Scene 1: Intro Reveal (Auto-play)
 
 #### Circle Animations
-- **Inner Circle Draw Duration**: `2s`
-- **Inner Circle Rotation Speed**: `30s` (full rotation)
+- **Inner Circle Draw Duration**: `2s` (stagger animation với Anime.js)
+- **Inner Circle Rotation Speed**: `30s` (full rotation, manual animation)
 - **Outer Circle Draw Delay**: `0.5s`
-- **Outer Circle Draw Duration**: `2.5s`
-- **Outer Circle Rotation Speed**: `45s` (full rotation, slower)
+- **Outer Circle Draw Duration**: `2.5s` (stagger animation với Anime.js)
+- **Outer Circle Rotation Speed**: `45s` (full rotation, slower, manual animation)
 - **Rotation Direction**: Clockwise
+
+**Technical Implementation Notes:**
+- **Draw Animation**: Sử dụng Anime.js với `stroke-dashoffset` animation
+- **Rotation Animation**: Sử dụng manual animation với `requestAnimationFrame` và SVG transform attribute
+- **Transform Method**: `rotate(angle, centerX, centerY)` - SVG transform attribute (không dùng CSS transform)
+- **Center Point**: `(200, 200)` - center của viewBox `"0 0 400 400"`
+- **Animation Loop**: Sử dụng modulo để loop rotation từ 0° đến 360°
+- **Performance**: Sử dụng `performance.now()` thay vì `Date.now()` cho độ chính xác cao hơn
+- **Drift Fix**: Sử dụng SVG transform attribute thay vì CSS transform để tránh drift issue khi rotate
 
 #### Dots Staggering Effect
 - **Total Dots**: `20`
