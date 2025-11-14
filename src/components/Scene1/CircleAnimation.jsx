@@ -13,6 +13,8 @@ function CircleAnimation() {
   const resizeHandlerRef = useRef(null)
   const innerAnimationFrameIdRef = useRef(null)
   const outerAnimationFrameIdRef = useRef(null)
+  const wrapperRef = useRef(null)
+  const scaleAnimationRef = useRef(null)
 
   useEffect(() => {
     if (!innerBarsRef.current || !outerBarsRef.current) return
@@ -122,6 +124,7 @@ function CircleAnimation() {
 
     // Position wrapper element at center - set once and lock it
     const wrapperEl = svgRef.current?.parentElement
+    wrapperRef.current = wrapperEl
     
     if (wrapperEl) {
       const wrapperWidth = 600
@@ -137,8 +140,9 @@ function CircleAnimation() {
       wrapperEl.style.height = `${wrapperHeight}px`
       wrapperEl.style.padding = '0'
       
-      // Remove any transform to avoid conflicts with anime.js
-      wrapperEl.style.transform = 'none'
+      // Set initial transform origin for scaling
+      wrapperEl.style.transformOrigin = 'center center'
+      wrapperEl.style.transform = 'scale(1)'
     }
     
     // FIX: SVG transform origin drift issue
@@ -234,11 +238,42 @@ function CircleAnimation() {
       }
     }}
     
+    // Scale animation for circles to contain dots during Phase 2 expansion
+    // Timing synchronized with DotsStagger Phase 2:
+    // - Outer circle complete: 2900ms
+    // - Phase 1 duration: 400ms
+    // - Phase 2 duration: 300ms (dots scale to 2.5)
+    // - Phase 3 duration: 500ms
+    // Phase 2 starts: 2900ms + 400ms = 3300ms
+    const outerCircleCompleteTime = 2900
+    const phase1Duration = 400
+    const phase2Duration = 300
+    const phase3Duration = 500
+    
+    // Scale up circles when Phase 2 starts (to contain expanding dots)
+    const scaleUpStartTime = outerCircleCompleteTime + phase1Duration // 3300ms
+    const scaleUpValue = 1.4 // Scale circles to 1.4x to contain dots scaling to 2.5x
+    
+    // Scale animation: scale up during Phase 2 and keep the scale (no scale down)
+    if (wrapperEl) {
+      // Scale up during Phase 2 and maintain the scale
+      const scaleAnim = anime({
+        targets: wrapperEl,
+        scale: scaleUpValue,
+        duration: phase2Duration,
+        delay: scaleUpStartTime,
+        easing: 'easeOutQuad'
+      })
+      
+      scaleAnimationRef.current = scaleAnim
+    }
+    
     console.log('✅ Animation setup complete')
 
     return () => {
       if (innerDrawAnim) innerDrawAnim.pause()
       if (outerDrawAnim) outerDrawAnim.pause()
+      if (scaleAnimationRef.current) scaleAnimationRef.current.pause()
       if (innerAnimationFrameIdRef.current) {
         cancelAnimationFrame(innerAnimationFrameIdRef.current)
         innerAnimationFrameIdRef.current = null

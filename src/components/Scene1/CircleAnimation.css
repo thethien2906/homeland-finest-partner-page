@@ -7,7 +7,8 @@
   margin-top: -300px !important;
   width: 600px !important;
   height: 600px !important;
-  transform: none !important; /* Prevent any transform interference */
+  transform: scale(1); /* Initial scale, will be animated by anime.js */
+  transform-origin: center center;
   z-index: 1;
   pointer-events: none;
   padding: 0;

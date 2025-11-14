@@ -2,7 +2,7 @@
 
 ## 📋 Tổng Quan
 
-**Mục tiêu:** Tạo màn hình intro reveal ấn tượng với các vòng tròn SVG, hiệu ứng dots, và bản đồ Việt Nam 3D với ripple effect.
+**Mục tiêu:** Tạo màn hình intro reveal ấn tượng với các vòng tròn SVG, hiệu ứng dots, và bản đồ Việt Nam 3D với floating animation và drag interaction.
 
 **Thời gian ước tính:** 4-6 giờ
 
@@ -23,13 +23,10 @@
 
 ### 3. Bản Đồ 3D Việt Nam
 - Load file `.glb` từ `public/models/vn-map.glb`
-- Hiển thị ở trung tâm, fade in sau khi vòng tròn bắt đầu
-- Scale animation từ 0.8 → 1
-
-### 4. Ripple Effect
-- Hiệu ứng sóng liên tục phát ra từ tâm bản đồ
-- 3 vòng tròn đồng tâm
-- Lặp lại mỗi 2 giây
+- Hiển thị ở trung tâm, fade in sau khi dots staggering hoàn thành
+- Scale animation từ 0.8 → 1 (của scale cuối)
+- Floating animation (quay như con quay)
+- Drag interaction (kéo chuột để xoay với momentum effect)
 
 ---
 
@@ -117,6 +114,8 @@ src/
 - [x] Manual animation với requestAnimationFrame cho rotation
 - [x] Sử dụng SVG transform attribute để tránh drift
 - [x] Đảm bảo timing đúng (inner trước, outer sau delay)
+- [x] Scale animation: Circles scale up 1.4x khi dots giãn nở (Phase 2) và giữ nguyên kích thước
+- [x] Timing đồng bộ với DotsStagger Phase 2 (bắt đầu sau 3300ms)
 - [x] Test trên các kích thước màn hình khác nhau
 
 ---
@@ -216,163 +215,57 @@ function DotsStagger() {
 
 ---
 
-### **Bước 4: Implement Bản Đồ 3D với Ripple** (2 giờ)
+### **Bước 4: Implement Bản Đồ 3D** (2 giờ)
 
 #### 4.1. Tạo component Map3D.jsx
 
 **Yêu cầu kỹ thuật:**
 - Load file `.glb` sử dụng `@react-three/drei` (useGLTF)
-- Hiển thị ở trung tâm
-- Fade in animation
-- Scale animation từ 0.8 → 1
+- Hiển thị ở trung tâm, nằm sau vòng tròn (z-index: 0)
+- Fade in animation sau khi dots staggering hoàn thành
+- Scale animation từ 0.8 → 1 (của scale cuối)
+- Floating animation (quay như con quay)
+- Drag interaction (kéo chuột để xoay)
 
-**Tham số từ Hyperparameter.md:**
-- Fade In Delay: 1.5s (sau khi circles bắt đầu)
-- Fade In Duration: 1.5s
-- Scale Start: 0.8
-- Scale End: 1
-- Position: Center
+**Tham số thực tế:**
+- Fade In Delay: 4100ms (sau khi dots staggering hoàn thành)
+  - Outer Circle Complete: 2900ms
+  - Dots Animation Duration: 1200ms
+  - Total: 2900ms + 1200ms = 4100ms
+- Fade In Duration: 1500ms
+- Scale Start: 3 (0.8 của scale cuối 4)
+- Scale End: 4
+- Position: [0, 0, -0.5] (lùi về sau để nằm sau circles)
+- Rotation: [rot(0.6), rot(-0.4), rot(0)] (nghiêng về sau, quay)
+- Z-index: 0 (sau circles có z-index: 1)
 
 **Implementation:**
 ```jsx
 // Map3D.jsx structure
 - Sử dụng @react-three/fiber Canvas
 - useGLTF hook để load vn-map.glb
-- GSAP hoặc Three.js animation cho:
-  - Opacity fade in
-  - Scale animation
-- Position camera để map ở center
+- GSAP animation cho:
+  - Opacity fade in (delay 4.1s, duration 1.5s)
+  - Scale animation (3 → 4)
+- useFrame cho floating animation (quay quanh Y axis)
+- Mouse drag interaction để xoay map
+- Momentum effect khi thả chuột
 ```
 
-**Checklist:**
-- [ ] Load file `public/models/vn-map.glb`
-- [ ] Setup Three.js scene với camera phù hợp
-- [ ] Fade in animation (delay 1.5s, duration 1.5s)
-- [ ] Scale animation từ 0.8 → 1
-- [ ] Map hiển thị ở trung tâm
-- [ ] Material và lighting phù hợp
-
-#### 4.2. Implement Ripple Effect
-
-**Yêu cầu kỹ thuật:**
-- 3 vòng tròn đồng tâm
-- Phát ra từ tâm bản đồ
-- Lặp lại liên tục
-- **Tham khảo từ:** `documents/scene_1/ripple-effect/`
-
-**Tham số từ Hyperparameter.md:**
-- Ripple Interval: 2s (mỗi 2 giây)
-- Ripple Duration: 2s
-- Ripple Count: 3 (concentric circles)
-- Ripple Scale End: 3
-- Ripple Opacity Start: 0.6
-- Ripple Opacity End: 0
-
-**Implementation Pattern (từ ví dụ):**
-```jsx
-// Ripple effect trong Map3D.jsx
-// Tham khảo từ ripple-effect/index.js nhưng chuyển sang Three.js
-
-import { useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { RingGeometry } from 'three';
-import gsap from 'gsap';
-
-function RippleEffect() {
-  const ringsRef = useRef([]);
-  const rippleAnimations = useRef([]);
-  
-  useEffect(() => {
-    // Tạo 3 ring geometries (tương tự ví dụ tạo DOM elements)
-    const rings = [];
-    for (let i = 0; i < 3; i++) {
-      const ring = new RingGeometry(1, 1.1, 64);
-      rings.push(ring);
-    }
-    ringsRef.current = rings;
-    
-    // Function tạo ripple (tương tự createRipple() trong ví dụ)
-    function createRipple(ringIndex) {
-      const ring = ringsRef.current[ringIndex];
-      const mesh = /* get mesh reference */;
-      
-      // Reset về trạng thái ban đầu
-      mesh.scale.set(1, 1, 1);
-      mesh.material.opacity = 0.6;
-      
-      // Animation (tương tự ví dụ nhưng dùng GSAP cho Three.js)
-      const scaleAnim = gsap.to(mesh.scale, {
-        x: 3, y: 3, z: 3,
-        duration: 2, // 2000ms như Hyperparameter.md
-        ease: 'power2.out', // Tương đương 'out(2)' trong ví dụ
-        onComplete: () => {
-          mesh.scale.set(1, 1, 1);
-        }
-      });
-      
-      const opacityAnim = gsap.to(mesh.material, {
-        opacity: 0,
-        duration: 2,
-        ease: 'power2.out'
-      });
-      
-      rippleAnimations.current.push({ scaleAnim, opacityAnim });
-    }
-    
-    // Bắt đầu ripple ngay lập tức (như ví dụ)
-    rings.forEach((_, index) => {
-      setTimeout(() => createRipple(index), index * 300); // Stagger 0.3s
-    });
-    
-    // Loop với interval 2s (như ví dụ dùng setInterval)
-    const intervalId = setInterval(() => {
-      rings.forEach((_, index) => {
-        setTimeout(() => createRipple(index), index * 300);
-      });
-    }, 2000);
-    
-    return () => {
-      clearInterval(intervalId);
-      rippleAnimations.current.forEach(anim => {
-        anim.scaleAnim.kill();
-        anim.opacityAnim.kill();
-      });
-    };
-  }, []);
-  
-  // Render 3 rings
-  return (
-    <>
-      {ringsRef.current.map((ring, index) => (
-        <mesh key={index} geometry={ring}>
-          <meshBasicMaterial 
-            transparent 
-            opacity={0.6}
-            color="#ffffff"
-          />
-        </mesh>
-      ))}
-    </>
-  );
-}
-```
-
-**So sánh với ví dụ:**
-- Ví dụ: DOM elements, scale từ 0 → MAX_SIZE/50, opacity 0.8 → 0, duration 4000ms, interval 1000ms
-- Scene 1: Three.js rings, scale từ 1 → 3, opacity 0.6 → 0, duration 2000ms, interval 2000ms
-- Pattern tương tự: Tạo elements động, animate, tự động cleanup
+**Lighting:**
+- Ambient Light: intensity 2
+- Point Light 1: position [10, 10, 10], intensity 1.5
+- Point Light 2: position [-10, -10, -10], intensity 0.8
 
 **Checklist:**
-- [ ] Tạo 3 ring geometries trong Three.js (tương tự tạo DOM elements trong ví dụ)
-- [ ] Position ở tâm bản đồ (0, 0, 0)
-- [ ] Function `createRipple()` tương tự ví dụ
-- [ ] Scale animation từ 1 → 3 (duration 2s)
-- [ ] Opacity animation từ 0.6 → 0 (duration 2s)
-- [ ] Easing: `power2.out` (tương đương `out(2)` trong ví dụ)
-- [ ] Loop animation với `setInterval` (2s) - pattern từ ví dụ
-- [ ] Stagger giữa 3 vòng tròn (0.3s delay mỗi ring)
-- [ ] Tự động reset và cleanup (như ví dụ)
-- [ ] Material phù hợp (transparent, có thể dùng shader material)
+- [x] Load file `public/models/vn-map.glb`
+- [x] Setup Three.js scene với camera phù hợp
+- [x] Fade in animation (delay 4.1s, duration 1.5s)
+- [x] Scale animation từ 3 → 4
+- [x] Map hiển thị ở trung tâm, nằm sau circles
+- [x] Material và lighting phù hợp
+- [x] Floating animation (quay như con quay)
+- [x] Drag interaction với momentum effect
 
 ---
 
@@ -522,80 +415,6 @@ anime({
 })
 ```
 
-#### 2. Ripple Effect Reference (`documents/scene_1/ripple-effect/`)
-
-**Đặc điểm từ ví dụ:**
-- Tạo ripple elements động (DOM elements)
-- Scale từ 0 → MAX_RIPPLE_SIZE/50
-- Opacity từ 0.8 → 0
-- Duration: 4000ms (4 giây)
-- Interval: 1000ms (1 giây) - tạo ripple mới
-- Tự động xóa element sau khi animation hoàn thành
-- Easing: `out(2)`
-
-**Áp dụng cho Scene 1:**
-- Thay vì DOM elements, sử dụng Three.js RingGeometry
-- Scale từ 1 → 3 (theo Hyperparameter.md)
-- Opacity từ 0.6 → 0
-- Duration: 2000ms (2 giây) - theo Hyperparameter.md
-- Interval: 2000ms (2 giây) - theo Hyperparameter.md
-- 3 vòng tròn đồng tâm với stagger
-
-**Code Pattern Reference:**
-```javascript
-// Từ ví dụ ripple-effect/index.js
-function createRipple() {
-  const ripple = document.createElement('div');
-  ripple.className = 'ripple';
-  ripple.style.transform = 'scale(0)';
-  container.appendChild(ripple);
-  
-  const animation = animate(ripple, {
-    scale: { from: 0, to: MAX_RIPPLE_SIZE/50, duration: 4000, ease: 'out(2)' },
-    opacity: { from: 0.8, to: 0, duration: 4000, ease: 'out(2)' },
-    onComplete: () => ripple.remove()
-  });
-}
-
-setInterval(() => createRipple(), 1000);
-```
-
-**Chuyển đổi sang Three.js + GSAP:**
-```javascript
-// Cho Scene 1 - 3 vòng tròn đồng tâm
-function createRipple(ringRef, index) {
-  gsap.fromTo(ringRef.current.scale, 
-    { x: 1, y: 1, z: 1 },
-    {
-      x: 3, y: 3, z: 3,
-      duration: 2,
-      delay: index * 0.3, // Stagger giữa 3 vòng tròn
-      ease: 'power2.out',
-      onComplete: () => {
-        ringRef.current.scale.set(1, 1, 1);
-      }
-    }
-  );
-  
-  gsap.fromTo(ringRef.current.material,
-    { opacity: 0.6 },
-    {
-      opacity: 0,
-      duration: 2,
-      delay: index * 0.3,
-      ease: 'power2.out'
-    }
-  );
-}
-
-// Loop với interval 2s
-useEffect(() => {
-  const interval = setInterval(() => {
-    rings.forEach((ring, index) => createRipple(ring, index));
-  }, 2000);
-  return () => clearInterval(interval);
-}, []);
-```
 
 ### Thư Viện Sử Dụng
 
@@ -605,11 +424,11 @@ useEffect(() => {
 
 2. **Three.js + React Three Fiber** (đã cài đặt)
    - Load và hiển thị bản đồ 3D
-   - Ripple effect 3D (tham khảo từ ví dụ, chuyển đổi sang Three.js)
+   - Floating animation và drag interaction
 
 3. **GSAP** (đã cài đặt)
    - Fade in/scale của map
-   - Ripple effect animation (có thể dùng thay cho Three.js animation)
+   - Animation timing và sequencing
 
 ### File Assets Cần Thiết
 
@@ -623,7 +442,14 @@ useEffect(() => {
 - Outer Circle Draw Delay: 200ms (sau inner circle hoàn thành)
 - Outer Circle Draw: 1500ms total (250ms × 6 dashes) - reduced from 2500ms
 - Outer Circle Rotate: 45s (continuous, manual animation với requestAnimationFrame)
+- **Circle Scale Animation**: 
+  - Start Time: 3300ms (khi Dots Phase 2 bắt đầu)
+  - Scale Value: 1.4x (để chứa dots đang scale 2.5x)
+  - Duration: 300ms (cùng với Phase 2 duration)
+  - Behavior: Giữ nguyên kích thước 1.4x sau khi scale up (không scale về 1)
+  - Easing: easeOutQuad
 - **Note**: Rotation sử dụng SVG transform attribute `rotate(angle, 200, 200)` để tránh drift issue
+- **Note**: Scale animation sử dụng CSS transform trên wrapper element, transform-origin: center center
 
 **Dots:**
 - Grid: 13×13 grid, dynamic số lượng dots (tất cả dots trong inner circle)
@@ -665,6 +491,8 @@ useEffect(() => {
 - [x] Fix drift issue bằng cách sử dụng SVG transform attribute
 - [x] Sử dụng performance.now() cho độ chính xác animation
 - [x] Timing và sequencing đúng (outer circle nhanh hơn: 1500ms thay vì 2500ms)
+- [x] Scale animation: Circles scale up 1.4x khi dots giãn nở (Phase 2) và giữ nguyên kích thước
+- [x] Timing đồng bộ với DotsStagger Phase 2 (bắt đầu sau 3300ms)
 
 ### Dots Staggering
 - [x] Tạo DotsStagger component
@@ -676,18 +504,14 @@ useEffect(() => {
 - [x] Timing đồng bộ với CircleAnimation
 
 ### Bản Đồ 3D
-- [ ] Tạo Map3D component
-- [ ] Load file .glb
-- [ ] Fade in animation
-- [ ] Scale animation
-- [ ] Position ở center
-
-### Ripple Effect
-- [ ] Tạo 3 ring geometries
-- [ ] Implement scale animation
-- [ ] Implement opacity animation
-- [ ] Loop với interval 2s
-- [ ] Stagger giữa các vòng tròn
+- [x] Tạo Map3D component
+- [x] Load file .glb
+- [x] Fade in animation (delay 4.1s sau dots complete)
+- [x] Scale animation (3 → 4)
+- [x] Position ở center, nằm sau circles (z-index: 0, position z: -0.5)
+- [x] Floating animation (quay như con quay)
+- [x] Drag interaction với momentum effect
+- [x] Lighting phù hợp (ambient + 2 point lights)
 
 ### Tích Hợp
 - [x] Tích hợp tất cả vào Scene1.jsx
@@ -711,7 +535,7 @@ useEffect(() => {
 | 1. Setup Component Structure | 30 phút | Cao |
 | 2. Vòng Tròn SVG | 1.5 giờ | Cao |
 | 3. Dots Staggering | 1 giờ | Trung bình |
-| 4. Bản Đồ 3D + Ripple | 2 giờ | Cao |
+| 4. Bản Đồ 3D | 2 giờ | Cao |
 | 5. Tích Hợp Scene1 | 30 phút | Cao |
 | 6. Styling & Responsive | 30 phút | Trung bình |
 | 7. Tích Hợp vào App | 15 phút | Cao |
@@ -740,7 +564,7 @@ useEffect(() => {
 
 - Scene 1 là auto-play, không cần scroll trigger
 - Tất cả animation chạy tự động khi component mount
-- Scene 1 kết thúc ở trạng thái "nghỉ" với ripple effect liên tục
+- Scene 1 kết thúc ở trạng thái "nghỉ" với map quay tự động và có thể tương tác
 - Người dùng scroll để chuyển sang Scene 2 (sẽ implement sau)
 
 ---
@@ -753,13 +577,11 @@ useEffect(() => {
 3. **Keyframes:** Có thể dùng 3 keyframes (0 → 2 → 0) như ví dụ để tạo hiệu ứng mượt hơn
 4. **Easing:** `easeInOutQuad` tạo cảm giác tự nhiên
 
-### Ripple Effect:
-1. **Pattern tạo elements động:** Tạo elements trong function `createRipple()`, không tạo sẵn
-2. **setInterval pattern:** Sử dụng `setInterval` để tạo ripple mới liên tục
-3. **Cleanup quan trọng:** Luôn cleanup interval và animations khi component unmount
-4. **Reset state:** Reset scale và opacity về giá trị ban đầu trước mỗi animation
-5. **Stagger giữa các rings:** Delay 0.3s giữa mỗi ring để tạo hiệu ứng sóng
-6. **Easing:** `power2.out` (GSAP) tương đương `out(2)` trong ví dụ
+### Map 3D Interaction:
+1. **Floating animation:** Sử dụng `useFrame` để quay liên tục quanh trục Y
+2. **Drag interaction:** Xử lý mouse events để xoay map theo chuột
+3. **Momentum effect:** Tính toán velocity và áp dụng friction khi thả chuột
+4. **Auto rotation:** Quay về tốc độ cơ bản sau khi momentum hết
 
 ### Chuyển Đổi Từ Ví Dụ Sang React + Three.js:
 - Ví dụ dùng DOM elements → Scene 1 dùng Three.js geometries
@@ -806,12 +628,12 @@ useEffect(() => {
 - ✅ `src/components/Scene1/DotsStagger.css` - Hoàn thành
 - ✅ `src/components/Scene1/Scene1.jsx` - Hoàn thành
 - ✅ `src/components/Scene1/Scene1.css` - Hoàn thành
-- ⏳ `src/components/Scene1/Map3D.jsx` - Đang implement (structure đã có, cần animation)
-- ⏳ `src/components/Scene1/Map3D.css` - Đã có
+- ✅ `src/components/Scene1/Map3D.jsx` - Hoàn thành với đầy đủ tính năng
+- ✅ `src/components/Scene1/Map3D.css` - Hoàn thành
 
 ### Next Steps:
-1. Hoàn thành Map3D fade in và scale animation
-2. Implement Ripple Effect trong Map3D
-3. Testing và fine-tuning timing
+1. ✅ Hoàn thành Map3D fade in và scale animation
+2. ✅ Implement floating animation và drag interaction
+3. Testing và fine-tuning timing (nếu cần)
 4. Responsive design adjustments (nếu cần)
 

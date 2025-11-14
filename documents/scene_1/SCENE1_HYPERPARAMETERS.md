@@ -30,6 +30,18 @@
 - **ViewBox**: `"0 0 400 400"`
 - **Wrapper Size**: `600px × 600px`
 - **Center Point**: `(200, 200)` - Tâm của viewBox
+- **Transform Origin**: `center center` - Điểm gốc cho scale animation
+
+### Circle Scale Animation
+- **Scale Start Time**: `3300ms` - Bắt đầu scale khi Phase 2 của dots bắt đầu (outerCircleCompleteTime + phase1Duration)
+- **Scale Up Value**: `1.4x` - Scale circles lên 1.4x để chứa dots đang giãn nở (dots scale to 2.5x)
+- **Scale Duration**: `300ms` - Thời gian scale up (cùng với Phase 2 duration của dots)
+- **Scale Easing**: `easeOutQuad` - Easing function cho scale up
+- **Scale Behavior**: **Giữ nguyên kích thước** - Circles giữ ở 1.4x sau khi scale up, không scale về 1
+- **Timing Sync**: 
+  - Phase 2 Start: `2900ms + 400ms = 3300ms`
+  - Scale Up: `3300ms → 3600ms` (300ms duration)
+  - Scale Maintain: `3600ms+` (giữ ở 1.4x)
 
 ---
 
@@ -82,32 +94,35 @@
 ## 🗺️ Map 3D Parameters
 
 ### Fade In Animation
-- **Fade In Delay**: `1500ms` - Delay sau khi circles bắt đầu
+- **Fade In Delay**: `4100ms` - Delay sau khi dots staggering hoàn thành
+  - Outer Circle Complete: `2900ms`
+  - Dots Animation Duration: `1200ms`
+  - Total: `2900ms + 1200ms = 4100ms`
 - **Fade In Duration**: `1500ms` - Thời gian fade in
-- **Scale Start**: `0.8`
-- **Scale End**: `1`
+- **Scale Start**: `3` (0.8 của scale cuối)
+- **Scale End**: `4`
+- **Easing**: `power2.out` (GSAP)
 
-### Position
-- **Position**: `[0, 0, 0]` - Center
+### Position & Rotation
+- **Position**: `[0, 0, -0.5]` - Center, lùi về sau để nằm sau circles
+- **Initial Rotation**: `[rot(0.6), rot(-0.4), rot(0)]` - Nghiêng về sau, quay
 - **Camera Position**: `[0, 0, 5]`
 - **Camera FOV**: `75°`
 
----
+### Floating Animation
+- **Rotation Speed**: `0.3` - Tốc độ quay tự động (radians per second)
+- **Rotation Axis**: `Y` - Quay quanh trục Y (như con quay)
+- **Floating Effect**: `Math.sin(time * 0.5) * 0.1` - Di chuyển nhẹ lên xuống theo trục Z
 
-## 🌊 Ripple Effect Parameters
+### Drag Interaction
+- **Drag Speed**: `0.005` - Tốc độ xoay khi kéo chuột
+- **Momentum Friction**: `0.95` - Hệ số ma sát cho momentum effect
+- **Momentum Threshold**: `0.001` - Ngưỡng để dừng momentum và quay về tốc độ cơ bản
 
-### Configuration
-- **Ripple Count**: `3` - Số lượng vòng tròn đồng tâm
-- **Ripple Interval**: `2000ms` (2 giây) - Khoảng thời gian giữa mỗi lần tạo ripple
-- **Ripple Duration**: `2000ms` (2 giây) - Thời gian animation mỗi ripple
-- **Stagger Between Rings**: `300ms` - Delay giữa các vòng tròn trong cùng một ripple
-
-### Animation Values
-- **Scale Start**: `1`
-- **Scale End**: `3`
-- **Opacity Start**: `0.6`
-- **Opacity End**: `0`
-- **Easing**: `power2.out` (GSAP)
+### Lighting
+- **Ambient Light Intensity**: `2`
+- **Point Light 1**: Position `[10, 10, 10]`, Intensity `1.5`
+- **Point Light 2**: Position `[-10, -10, -10]`, Intensity `0.8`
 
 ---
 
@@ -117,12 +132,11 @@
 - **Background**: `#000000` (Black)
 - **Circle Stroke**: `#FFFFFF` (White)
 - **Dot Color**: `#FFFFFF` (White)
-- **Ripple Color**: `#4A90E2` (Blue)
 
 ### Z-Index Layering
+- **Map 3D**: `z-index: 0` (nằm sau circles)
 - **Circle Animation**: `z-index: 1`
 - **Dots Stagger**: `z-index: 2`
-- **Map 3D**: `z-index: 3`
 
 ---
 
@@ -138,7 +152,11 @@
 | `~2885ms` | Outer circle hoàn thành (reduced from 3885ms) |
 | `2900ms` | Dots bắt đầu animation 3 giai đoạn (reduced from 3900ms) |
 | `2900ms + stagger` | Mỗi dot bắt đầu animation theo khoảng cách từ center |
+| `3300ms` | Circles bắt đầu scale up 1.4x (khi Phase 2 của dots bắt đầu) |
+| `3600ms` | Circles scale up hoàn thành, giữ nguyên kích thước 1.4x |
 | `2900ms + stagger + 1200ms` | Animation 3 giai đoạn hoàn thành |
+| `4100ms` | Map bắt đầu fade in (sau dots complete) |
+| `4100ms + 1500ms = 5600ms` | Map fade in hoàn thành |
 
 ---
 
@@ -173,6 +191,9 @@
    - `innerDuration`, `innerStaggerDelay`
    - `dashAppearDuration`, `outerStartDelay`
    - `innerRotationDuration`, `outerRotationDuration`
+   - `scaleUpValue` (hiện tại: 1.4) - Giá trị scale của circles
+   - `scaleUpStartTime` (hiện tại: 3300ms) - Thời điểm bắt đầu scale
+   - `phase2Duration` (hiện tại: 300ms) - Thời gian scale up
 
 ---
 
