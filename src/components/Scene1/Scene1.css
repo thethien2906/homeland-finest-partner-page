@@ -3,31 +3,68 @@
   position: relative;
   width: 100vw;
   height: 100vh;
+  min-height: 100vh;
   background-color: #000;
-  /* Loại bỏ flexbox để tránh conflict với absolute positioning của children */
-  /* display: flex; */
-  /* justify-content: center; */
-  /* align-items: center; */
   overflow: hidden;
+  /* Container full screen với background đen */
 }
 
-/* Z-index layering: SVG circles → Dots → 3D Map */
-/* Note: CircleAnimation có wrapper riêng với transform, không cần apply ở đây */
+/* Z-index layering (từ trên xuống dưới):
+   - Dots Stagger: z-index 2 (trên cùng)
+   - Circle Animation: z-index 1 (giữa)
+   - Map 3D: z-index 0 (dưới cùng)
+*/
 
-/* Đảm bảo wrapper không bị ảnh hưởng bởi rule dưới */
+/* Circle Animation - Fixed positioning, centered */
 .scene1-container > .circle-animation-wrapper {
   position: fixed !important;
-  /* Transform và position sẽ được set bằng JavaScript */
+  /* Position và transform được set bằng JavaScript trong CircleAnimation.jsx */
 }
 
-/* Chỉ apply cho các children khác, không phải wrapper */
-.scene1-container > .dots-stagger-container,
+/* Dots Stagger - Absolute positioning, centered */
+.scene1-container > .dots-stagger-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Centering được handle bởi flexbox trong DotsStagger.css */
+}
+
+/* Map 3D - Absolute positioning, full screen */
 .scene1-container > .map3d-container {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Centering được handle bởi Canvas trong Map3D */
 }
 
-/* Responsive - Add mobile styles here if needed */
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile: < 768px */
+@media (max-width: 767px) {
+  .scene1-container {
+    /* Đảm bảo container vẫn full screen trên mobile */
+    width: 100vw;
+    height: 100vh;
+    /* Fix cho mobile browsers (iOS Safari) */
+    height: -webkit-fill-available;
+  }
+}
+
+/* Tablet: 768px - 1024px */
+/* Tablet-specific adjustments có thể thêm vào đây nếu cần */
+
+/* Desktop: > 1024px */
+/* Desktop-specific adjustments có thể thêm vào đây nếu cần */
+
+/* Large Desktop: > 1920px */
+/* Large screen optimizations có thể thêm vào đây nếu cần */
+
+/* Landscape orientation (mobile/tablet) */
+/* Adjustments cho landscape mode trên mobile có thể thêm vào đây nếu cần */
 

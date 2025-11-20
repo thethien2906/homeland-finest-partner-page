@@ -8,5 +8,24 @@
 .map3d-container canvas {
   width: 100% !important;
   height: 100% !important;
+  /* Đảm bảo canvas responsive */
+  display: block;
 }
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile: < 768px - Optimize 3D rendering */
+@media (max-width: 767px) {
+  .map3d-container canvas {
+    /* Đảm bảo canvas vẫn full screen trên mobile */
+    /* Canvas sẽ tự động scale, pixel ratio được điều chỉnh trong Map3D.jsx */
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* Landscape orientation (mobile/tablet) */
+/* Landscape-specific adjustments có thể thêm vào đây nếu cần */
 

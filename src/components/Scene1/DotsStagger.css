@@ -23,3 +23,25 @@
   transform-origin: center center;
 }
 
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile: < 768px - Dots size và spacing có thể điều chỉnh */
+@media (max-width: 767px) {
+  .dot {
+    /* Dots size giữ nguyên 2px hoặc có thể scale nhỏ hơn nếu cần */
+    width: 2px;
+    height: 2px;
+  }
+}
+
+/* Small Mobile: < 480px */
+@media (max-width: 479px) {
+  .dot {
+    /* Có thể scale nhỏ hơn trên màn hình rất nhỏ */
+    width: 1.5px;
+    height: 1.5px;
+  }
+}
+

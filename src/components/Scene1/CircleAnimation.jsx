@@ -2,6 +2,47 @@ import { useEffect, useRef } from 'react'
 import anime from 'animejs'
 import './CircleAnimation.css'
 
+// Calculate responsive circle size based on viewport width
+// Account for OS scaling by using devicePixelRatio
+const getResponsiveCircleSize = () => {
+  if (typeof window === 'undefined') return 600
+  
+  const viewportWidth = window.innerWidth
+  const screenWidth = window.screen?.width || viewportWidth
+  const devicePixelRatio = window.devicePixelRatio || 1
+  
+  // Calculate actual physical resolution (accounting for OS scaling)
+  // If devicePixelRatio > 1, screen might be scaled
+  const actualScreenWidth = screenWidth * devicePixelRatio
+  
+  // Also check screen.availWidth which might give better resolution info
+  const availWidth = window.screen?.availWidth || screenWidth
+  const actualAvailWidth = availWidth * devicePixelRatio
+  
+  // Use the largest value to detect actual screen resolution
+  // This helps detect high-DPI displays (2.5K, 4K, etc.)
+  const width = Math.max(viewportWidth, actualScreenWidth, actualAvailWidth)
+  
+  console.log(`[CircleAnimation] screen.width=${screenWidth}, availWidth=${availWidth}, innerWidth=${viewportWidth}, devicePixelRatio=${devicePixelRatio}, actualScreenWidth=${actualScreenWidth}, actualAvailWidth=${actualAvailWidth}, using=${width}`)
+  
+  if (width < 480) {
+    // Small Mobile: 420px
+    return 420
+  } else if (width < 768) {
+    // Mobile: 480px
+    return 480
+  } else if (width <= 1024) {
+    // Tablet: 540px
+    return 540
+  } else if (width <= 1920) {
+    // 1080p: 750px
+    return 750
+  } else {
+    // 2.5K+ (and 4K+): 600px - same as original file (before changes)
+    return 600
+  }
+}
+
 function CircleAnimation() {
   const svgRef = useRef(null)
   const innerBarsRef = useRef(null)
@@ -127,17 +168,21 @@ function CircleAnimation() {
     wrapperRef.current = wrapperEl
     
     if (wrapperEl) {
-      const wrapperWidth = 600
-      const wrapperHeight = 600
+      // Get responsive size based on viewport
+      const wrapperSize = getResponsiveCircleSize()
+      const width = window.innerWidth
+      console.log(`[CircleAnimation] Initial: width=${width}px, circleSize=${wrapperSize}px`)
       
       // Lock the wrapper position
       wrapperEl.style.position = 'fixed'
       wrapperEl.style.left = '50%'
       wrapperEl.style.top = '50%'
-      wrapperEl.style.marginLeft = `-${wrapperWidth / 2}px`
-      wrapperEl.style.marginTop = `-${wrapperHeight / 2}px`
-      wrapperEl.style.width = `${wrapperWidth}px`
-      wrapperEl.style.height = `${wrapperHeight}px`
+      
+      // Use setProperty with !important to override CSS
+      wrapperEl.style.setProperty('width', `${wrapperSize}px`, 'important')
+      wrapperEl.style.setProperty('height', `${wrapperSize}px`, 'important')
+      wrapperEl.style.setProperty('margin-left', `-${wrapperSize / 2}px`, 'important')
+      wrapperEl.style.setProperty('margin-top', `-${wrapperSize / 2}px`, 'important')
       wrapperEl.style.padding = '0'
       
       // Set initial transform origin for scaling
@@ -252,7 +297,11 @@ function CircleAnimation() {
     
     // Scale up circles when Phase 2 starts (to contain expanding dots)
     const scaleUpStartTime = outerCircleCompleteTime + phase1Duration // 3300ms
-    const scaleUpValue = 1.4 // Scale circles to 1.4x to contain dots scaling to 2.5x
+    
+    // Scale up value: 1.4x (same as original file)
+    // This matches the original file before responsive changes
+    const scaleUpValue = 1.4
+    console.log(`[CircleAnimation] Scale up value: ${scaleUpValue}x`)
     
     // Scale animation: scale up during Phase 2 and keep the scale (no scale down)
     if (wrapperEl) {
@@ -268,9 +317,32 @@ function CircleAnimation() {
       scaleAnimationRef.current = scaleAnim
     }
     
+    // Handle window resize to update circle size responsively
+    const handleResize = () => {
+      if (wrapperRef.current) {
+        const wrapperSize = getResponsiveCircleSize()
+        const width = window.innerWidth
+        console.log(`[CircleAnimation] Resize: width=${width}px, circleSize=${wrapperSize}px`)
+        
+        // Use setProperty with !important to override any CSS
+        wrapperRef.current.style.setProperty('width', `${wrapperSize}px`, 'important')
+        wrapperRef.current.style.setProperty('height', `${wrapperSize}px`, 'important')
+        wrapperRef.current.style.setProperty('margin-left', `-${wrapperSize / 2}px`, 'important')
+        wrapperRef.current.style.setProperty('margin-top', `-${wrapperSize / 2}px`, 'important')
+      }
+    }
+    
+    // Set initial size
+    handleResize()
+    
+    // Listen for resize events
+    window.addEventListener('resize', handleResize)
+    resizeHandlerRef.current = handleResize
+
     console.log('✅ Animation setup complete')
 
     return () => {
+      window.removeEventListener('resize', handleResize)
       if (innerDrawAnim) innerDrawAnim.pause()
       if (outerDrawAnim) outerDrawAnim.pause()
       if (scaleAnimationRef.current) scaleAnimationRef.current.pause()

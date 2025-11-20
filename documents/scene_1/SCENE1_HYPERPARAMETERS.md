@@ -28,7 +28,7 @@
 
 ### SVG Container
 - **ViewBox**: `"0 0 400 400"`
-- **Wrapper Size**: `600px × 600px`
+- **Wrapper Size**: Responsive (xem Responsive Design bên dưới)
 - **Center Point**: `(200, 200)` - Tâm của viewBox
 - **Transform Origin**: `center center` - Điểm gốc cho scale animation
 
@@ -99,8 +99,8 @@
   - Dots Animation Duration: `1200ms`
   - Total: `2900ms + 1200ms = 4100ms`
 - **Fade In Duration**: `1500ms` - Thời gian fade in
-- **Scale Start**: `3` (0.8 của scale cuối)
-- **Scale End**: `4`
+- **Scale Start**: Responsive (xem Responsive Design bên dưới)
+- **Scale End**: Responsive (xem Responsive Design bên dưới)
 - **Easing**: `power2.out` (GSAP)
 
 ### Position & Rotation
@@ -115,9 +115,11 @@
 - **Floating Effect**: `Math.sin(time * 0.5) * 0.1` - Di chuyển nhẹ lên xuống theo trục Z
 
 ### Drag Interaction
-- **Drag Speed**: `0.005` - Tốc độ xoay khi kéo chuột
+- **Drag Speed (Mouse)**: `0.005` - Tốc độ xoay khi kéo chuột
+- **Drag Speed (Touch)**: `0.003` - Tốc độ xoay khi kéo trên mobile (chậm hơn để dễ control)
 - **Momentum Friction**: `0.95` - Hệ số ma sát cho momentum effect
 - **Momentum Threshold**: `0.001` - Ngưỡng để dừng momentum và quay về tốc độ cơ bản
+- **Touch Support**: ✅ Hỗ trợ touch events cho mobile/tablet
 
 ### Lighting
 - **Ambient Light Intensity**: `2`
@@ -206,5 +208,36 @@
 
 ---
 
-**Last Updated**: 2024 - Đã cập nhật với các giá trị thực tế từ implementation
+---
+
+## 📱 Responsive Design Parameters
+
+### Circle Size Breakpoints
+- **Small Mobile (< 480px)**: `420px`
+- **Mobile (< 768px)**: `480px`
+- **Tablet (768-1024px)**: `540px`
+- **1080p (1025-1920px)**: `750px` (tăng 25% so với base)
+- **2.5K+ (> 1920px)**: `600px` (base size, giống file ban đầu)
+
+### Map3D Scale Breakpoints
+- **1080p (1025-1920px)**: 
+  - Initial Scale: `3.44` (0.8 × 4.3)
+  - Final Scale: `4.3` (match với circles 750px, ratio: 750/600 = 1.25)
+- **2.5K+ (> 1920px)**: 
+  - Initial Scale: `3.2` (0.8 × 4)
+  - Final Scale: `4` (match với circles 600px)
+
+### Pixel Ratio (Performance Optimization)
+- **Mobile (< 768px)**: Cap at `1.5x` (devicePixelRatio)
+- **Desktop (≥ 768px)**: Cap at `2x` (devicePixelRatio)
+- **Purpose**: Tối ưu performance trên mobile devices
+
+### Detection Method
+- Sử dụng `screen.width * devicePixelRatio` để detect actual screen resolution
+- Account for OS scaling và high-DPI displays
+- Fallback to `window.innerWidth` nếu cần
+
+---
+
+**Last Updated**: 2024 - Đã cập nhật với các giá trị thực tế từ implementation và responsive design
 

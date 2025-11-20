@@ -1,17 +1,18 @@
 .circle-animation-wrapper {
-  position: fixed !important;
-  left: 50% !important;
-  top: 50% !important;
-  /* Use negative margin for centering instead of transform */
-  margin-left: -300px !important;
-  margin-top: -300px !important;
-  width: 600px !important;
-  height: 600px !important;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  /* Size and margin will be set by JavaScript for responsive behavior */
   transform: scale(1); /* Initial scale, will be animated by anime.js */
   transform-origin: center center;
   z-index: 1;
   pointer-events: none;
   padding: 0;
+  /* Default size - will be overridden by JavaScript */
+  width: 600px;
+  height: 600px;
+  margin-left: -300px;
+  margin-top: -300px;
 }
 
 .circle-animation {
@@ -20,12 +21,12 @@
   display: block;
 }
 
-.circle-inner {
-  /* Transform is handled via SVG transform attribute, not CSS */
-  /* No CSS transform properties needed */
-}
+/* Note: Transform for .circle-inner and .circle-outer is handled via SVG transform attribute, not CSS */
 
-.circle-outer {
-  /* Transform is handled via SVG transform attribute, not CSS */
-  /* No CSS transform properties needed */
-}
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Responsive sizes are now handled by JavaScript in CircleAnimation.jsx */
+/* CSS media queries removed to allow JavaScript inline styles to take precedence */
+/* This ensures dynamic resizing works correctly */

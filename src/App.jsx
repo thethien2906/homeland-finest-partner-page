@@ -105,8 +105,11 @@ function App() {
 
   return (
     <div className="app">
-      {/* Scene 1: Intro Reveal */}
+      {/* Scene 1: Intro Reveal - Auto-play on page load */}
       <Scene1 />
+
+      {/* Scene 2: Deconstructing the Nón Lá - Will be implemented next */}
+      {/* <Scene2 /> */}
 
       {/* Demo sections - có thể comment lại khi cần */}
       {/* 
