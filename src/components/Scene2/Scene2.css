@@ -1,0 +1,81 @@
+/* Scene 2: Deconstructing the Nón Lá */
+
+.scene2-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  background-color: #000;
+  overflow: hidden;
+  /* Container full screen với background đen ban đầu */
+}
+
+/* Three.js Canvas */
+.scene2-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  /* Canvas ở layer dưới cùng */
+}
+
+/* Z-index layering (từ trên xuống dưới):
+   - Callout Lines: z-index 3 (trên cùng)
+   - Blueprint Transition: z-index 2 (giữa)
+   - Illumination Effect: z-index 1 (trong Canvas)
+   - 3D Models: z-index 0 (trong Canvas)
+*/
+
+/* Blueprint Transition Overlay */
+.scene2-container > .blueprint-transition {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  /* Overlay cho background transition */
+}
+
+/* Callout Lines Container */
+.scene2-container > .callout-lines-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  /* Container cho callout lines và text labels */
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile: < 768px */
+@media (max-width: 767px) {
+  .scene2-container {
+    /* Đảm bảo container vẫn full screen trên mobile */
+    width: 100vw;
+    height: 100vh;
+    /* Fix cho mobile browsers (iOS Safari) */
+    height: -webkit-fill-available;
+  }
+}
+
+/* Tablet: 768px - 1024px */
+/* Tablet-specific adjustments có thể thêm vào đây nếu cần */
+
+/* Desktop: > 1024px */
+/* Desktop-specific adjustments có thể thêm vào đây nếu cần */
+
+/* Large Desktop: > 1920px */
+/* Large screen optimizations có thể thêm vào đây nếu cần */
+
+/* Landscape orientation (mobile/tablet) */
+/* Adjustments cho landscape mode trên mobile có thể thêm vào đây nếu cần */
+

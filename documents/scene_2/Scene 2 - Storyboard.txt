@@ -1,0 +1,107 @@
+# STORYBOARD CHI TIẾT: SCENE 2 - THE DECONSTRUCTED HAT
+
+**Công nghệ chủ đạo:** Three.js (Render 3D), GSAP ScrollTrigger (Điều khiển timeline).
+**Trigger:** Toàn bộ hoạt ảnh được điều khiển bởi thanh cuộn (Scrubbing).
+
+---
+
+### Phase 1: The Ret-con Reveal (Tái định nghĩa)
+*Trạng thái chuyển giao từ Scene 1 sang Scene 2.*
+
+* **Hình ảnh:**
+    * Người dùng nhìn thấy vòng tròn "năng lượng" từ Scene 1.
+    * Khi bắt đầu cuộn, vòng tròn này không biến mất mà trở nên rõ nét hơn, đặc hơn.
+* **Camera Action:**
+    * **Zoom Out (Nhẹ):** Camera lùi lại từ từ.
+    * **Góc nhìn:** Từ trực diện (bên trong nón) bắt đầu thay đổi.
+* **Animation:**
+    * Bản đồ Việt Nam và hiệu ứng sóng (ripple) fade out (mờ dần).
+    * Người xem nhận ra "vòng tròn năng lượng" đó chính là **Vành trong (inner rim)** của một chiếc nón lá đang úp/lật ngang.
+
+### Phase 2: The Tilt & Separation (Nghiêng & Tách lớp)
+*Người dùng cuộn tiếp khoảng 10-20% chiều cao scene.*
+
+* **Hình ảnh:**
+    * Chiếc nón bắt đầu nghiêng, để lộ hình dáng hình chóp đặc trưng.
+    * 5 thành phần cấu tạo bắt đầu tách rời nhau.
+* **Camera Action:**
+    * **Pan Up:** Camera di chuyển nhẹ từ dưới lên.
+    * **Tilt:** Chiếc nón xoay trục X để mặt trên hướng về phía người xem.
+* **Animation (Exploded View):**
+    * Các lớp trượt dọc theo trục trung tâm (trục Y local của nón):
+        1.  **Vành nón (Rim):** Trượt nhẹ xuống dưới cùng.
+        2.  **Lá nón (Leaves):** Nhấc lên cao nhất.
+        3.  **Khung & Sườn (Frame & Ribs):** Bung ra ở giữa.
+        4.  **Quai nón (Strap):** Xuất hiện (Fade in + Scale up) ở phía dưới vành nón.
+
+### Phase 3: The Orbital Spin (Vũ điệu xoay)
+*Người dùng cuộn tiếp đến khoảng 40-50%.*
+
+* **Hình ảnh:**
+    * Toàn bộ 5 bộ phận đã tách hẳn nhau ra.
+    * Trục nón nghiêng một góc **45 độ** chuẩn xác (Chóp hướng góc 10h, Vành hướng góc 4h).
+* **Camera Action:**
+    * Đứng yên (Static), khóa góc nhìn song song với mặt phẳng nghiêng.
+* **Animation (Rotation):**
+    * Mỗi bộ phận xoay quanh trục riêng của nó:
+        * **Vành nón:** Xoay tròn đều, ổn định (tượng trưng cho sự vững chãi).
+        * **Lá nón:** Xoay nhẹ, hơi bồng bềnh (kiểu gió cuốn).
+        * **Khung & Sườn:** Xoay ngược chiều nhau (Counter-rotate) tạo hiệu ứng thị giác đan xen.
+        * **Quai nón:** Xoay uốn lượn mềm mại theo trục dưới cùng.
+
+### Phase 4: The Illumination (Khoảnh khắc nhận thức)
+*Người dùng cuộn đến 60-70%. Các lớp đã xoay ổn định.*
+
+* **Hình ảnh:**
+    * Vật thể vẫn đang ở chế độ Realistic (vật liệu thật: lá khô, tre, vải).
+    * Ánh sáng môi trường tối đi một chút để làm nổi bật luồng sáng mới.
+* **Animation (Light Path):**
+    * Một luồng sáng (Light beam/Spotlight) xuất hiện.
+    * **Hành trình:** Ánh sáng chạy dọc theo một thanh nan (sườn) từ đỉnh xuống -> chạm vành nón -> quét một vòng quanh chu vi vành nón.
+    * **Cảm giác:** Giống như tia laser quét hoặc luồng năng lượng chạy qua mạch điện.
+
+### Phase 5: The Blueprint Switch (Chuyển đổi kỹ thuật)
+*Người dùng cuộn đến 80%. Ngay sau khi ánh sáng quét xong.*
+
+* **Hình ảnh:**
+    * Thay đổi hoàn toàn phong cách visual (Visual Shift).
+* **Animation (Transition):**
+    * **Material Swap:** Toàn bộ vật liệu Realistic (Texture) biến mất ngay lập tức (hoặc dissolve cực nhanh). Thay thế bằng **Wireframe / Contour Lines** (Nét mảnh, màu tối hoặc xanh kỹ thuật).
+    * **Background Switch:** Nền đen (`#000`) chuyển sang **Nền sáng** (Trắng ngà/Xám nhạt/Giấy Blueprint).
+    * **Contrast:** Giảm độ tương phản gắt, tạo cảm giác phẳng (flat) và sạch sẽ của bản vẽ kỹ thuật.
+
+### Phase 6: The Callouts (Thông số kỹ thuật)
+*Người dùng cuộn đến 90-100% (Kết thúc scene).*
+
+* **Hình ảnh:**
+    * Mô hình Wireframe nón lá đang xoay chậm hoặc dừng lại ở góc đẹp nhất.
+    * Các đường kẻ chỉ dẫn (Leader lines) xuất hiện.
+* **Animation (Drawing):**
+    * Sử dụng SVG hoặc CSS để vẽ các đường line từ vật thể ra 2 góc màn hình.
+    * **Nhóm 1 (Góc trên - Phải):**
+        * Line nối từ Lá, Khung, Sườn -> Kéo ra góc phải.
+        * Text hiện ra (Typewriter effect hoặc Fade in):
+            * `[PLACEHOLDER_TITLE_1]`
+            * `[placeholder_desc_1]`
+    * **Nhóm 2 (Góc dưới - Trái):**
+        * Line nối từ Quai nón, Đế/Vành -> Kéo ra góc trái.
+        * Text hiện ra:
+            * `[PLACEHOLDER_TITLE_2]`
+            * `[placeholder_desc_2]`
+
+---
+
+### 🛠 Ghi chú kỹ thuật cho Dev (Technical Notes)
+
+1.  **Mô hình 3D (.glb):**
+    * Cần tách rời mesh ngay từ phần mềm 3D (Blender/Maya).
+    * Cấu trúc file 3D: `Root > [Rim, Leaves, Frame, Ribs, Strap]`.
+    * Cần chuẩn bị 2 set vật liệu: `Material_Realistic` (PBR textures) và `Material_Wireframe` (MeshBasicMaterial + Wireframe true hoặc EdgesGeometry).
+
+2.  **Sync Timeline:**
+    * Sử dụng `GSAP Timeline` kết hợp `ScrollTrigger`.
+    * Cần tính toán kỹ `scrub: true` để animation dừng lại đúng lúc người dùng ngừng cuộn.
+    * Phase 5 (Đổi màu nền) cần dùng thẻ `<div>` bao phủ hoặc đổi màu `body` background với transition CSS.
+
+3.  **Performance:**
+    * Lúc đổi sang Wireframe, nếu mô hình quá nhiều lưới (poly), nên dùng `EdgesGeometry` của Three.js để chỉ hiển thị các cạnh quan trọng, tránh rối mắt.
